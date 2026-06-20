@@ -1,0 +1,4 @@
+interface:
+  display_name: "Document Local Extensions"
+  short_description: "Document local Codex plugins and skills."
+  default_prompt: "Use $document-local-extensions to inspect a local Codex plugin or skill and generate a concise Markdown operation guide."
