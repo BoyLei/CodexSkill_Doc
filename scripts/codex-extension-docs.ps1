@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
   [ValidateSet('watch', 'doc', 'install', 'selftest')]
   [string]$Mode = 'watch',
@@ -162,33 +162,37 @@ function Write-State {
 
 function Invoke-DocGeneration {
   param($Target)
-  if (-not (Test-TargetReady $Target)) {
+  $removed = $null -ne $Target -and -not (Test-Path -LiteralPath $Target.Path)
+  if (-not $removed -and -not (Test-TargetReady $Target)) {
     Write-Log "skip not-ready $($Target.Kind) $($Target.Path)"
     return
   }
 
   $state = Read-State
   $key = '{0}|{1}' -f $Target.Kind, $Target.Path
-  $fingerprint = Get-Fingerprint $Target
+  $fingerprint = if ($removed) { 'removed' } else { Get-Fingerprint $Target }
   if ($state.ContainsKey($key) -and $state[$key] -eq $fingerprint) {
     Write-Log "skip unchanged $key"
     return
   }
 
   $prompt = @"
-使用 `$document-local-extensions skill，为刚安装或更新的 Codex 扩展生成或更新操作说明文档。
+使用 `$document-local-extensions skill，为刚安装、更新或删除的 Codex 扩展生成或更新操作说明文档，并重建 `插件简介.md`。
 
 目标：
 - 类型：$($Target.Kind)
 - 名称：$($Target.Name)
 - 本地路径：$($Target.Path)
+- 状态：$(if ($removed) { '已删除或移除' } else { '已安装或更新' })
 - 输出目录：$Workspace
 
 要求：
-- 只读取这个目标及必要的 SKILL.md、manifest、README、命令说明或只读帮助输出。
+- 为单独指南只读取这个目标及必要的 SKILL.md、manifest、README、命令说明或只读帮助输出；为 `插件简介.md` 可枚举 Codex 扩展目录。
 - 不读取或打印 auth.json、token、credential、browser profile、环境变量秘密。
 - 不安装、不登录、不删除、不重置、不修改 ~/.codex 或 ~/.agents 配置。
-- 生成 Markdown 操作说明文档，文件名包含扩展名称。
+- 如果目标仍存在，生成 Markdown 操作说明文档，文件名包含扩展名称。
+- 无论目标是新增、更新还是删除，都重建 `插件简介.md`，只保留当前仍安装的插件、技能和 agent。
+- 如果目标路径已不存在，不要为它生成单独操作指南。
 "@
 
   $args = @(
@@ -278,7 +282,7 @@ function Watch-Extensions {
       $watcher.EnableRaisingEvents = $true
       $watchers += $watcher
 
-      foreach ($eventName in @('Created', 'Changed', 'Renamed')) {
+      foreach ($eventName in @('Created', 'Changed', 'Renamed', 'Deleted')) {
         $sourceId = "CodexExtensionDocs.$i.$eventName"
         Register-ObjectEvent -InputObject $watcher -EventName $eventName -SourceIdentifier $sourceId | Out-Null
         $eventIds += $sourceId

@@ -1,6 +1,6 @@
 ---
 name: document-local-extensions
-description: Inspect local Codex plugins, installed skills, MCP/app bundles, CLI entry points, command docs, manifests, and local extension folders, then generate a concise Markdown operation guide. Use when the user asks to查找/阅读/整理本地插件或skill的功能、终端命令、使用方法、配置影响、排查步骤, or wants a reusable操作说明md for a local Codex extension.
+description: Inspect local Codex plugins, installed skills, agents, MCP/app bundles, CLI entry points, command docs, manifests, and local extension folders, then generate a concise Markdown operation guide and maintain 插件简介.md. Use when the user asks to查找/阅读/整理本地插件或skill/agent的功能、终端命令、使用方法、配置影响、排查步骤, or wants reusable操作说明md for local Codex extensions.
 ---
 
 # Document Local Extensions
@@ -41,6 +41,12 @@ Use this skill to turn a locally installed Codex plugin, app bundle, skill, or r
    - Put the generated `.md` in the user's requested folder.
    - If no folder is specified, use the current workspace or an obvious documentation folder.
    - Keep it practical: commands, examples, config paths, and troubleshooting over background explanation.
+
+7. Maintain `插件简介.md` when Codex extensions change.
+   - On any plugin, skill, or agent addition or removal, rebuild `插件简介.md` in the requested folder or current workspace.
+   - Enumerate the current installed state from `~/.codex/skills`, `~/.codex/plugins`, `~/.codex/plugins/cache`, `~/.codex/agents`, and `~/.agents/plugins` when they exist.
+   - Include one compact entry per current plugin, skill, or agent: type, name, local path, and one-sentence function summary.
+   - Omit removed extensions instead of keeping stale entries.
 
 ## Windows Command Patterns
 
