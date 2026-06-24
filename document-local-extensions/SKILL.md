@@ -1,6 +1,6 @@
 ---
 name: document-local-extensions
-description: Inspect local Codex plugins, installed skills, agents, MCP/app bundles, CLI entry points, command docs, manifests, and local extension folders, then generate a concise Markdown operation guide and maintain 插件简介.md. Use when the user asks to查找/阅读/整理本地插件或skill/agent的功能、终端命令、使用方法、配置影响、排查步骤, or wants reusable操作说明md for local Codex extensions.
+description: Inspect local Codex plugins, installed skills, agents, MCP/app bundles, CLI entry points, command docs, manifests, and local extension folders, then generate a concise Markdown operation guide and maintain 插件简介.md. Use when the user asks to查找/阅读/整理本地插件、skill、agent、MCP的功能、终端命令、使用方法、配置影响、排查步骤, or wants reusable操作说明md for local Codex extensions.
 ---
 
 # Document Local Extensions
@@ -16,12 +16,14 @@ Use this skill to turn a locally installed Codex plugin, app bundle, skill, or r
 2. Locate the local files.
    - Search `~/.codex/skills` for skills.
    - Search `~/.codex/plugins` and `~/.codex/plugins/cache` for plugins and bundled app assets.
+   - Search `~/.codex/config.toml`, `~/.codex/*.config.toml`, and project `.codex/config.toml` for MCP server definitions.
    - Search package or command locations only when the extension exposes a CLI, for example with `Get-Command <name>` or `python -m pip show -f <package>`.
    - Prefer exact names first, then normalized variants: spaces, hyphens, underscores, and case-insensitive matches.
 
 3. Read the highest-signal files first.
    - Skills: `SKILL.md`, `agents/openai.yaml`, directly referenced `references/*`, and relevant scripts.
    - Plugins: `.codex-plugin/plugin.json`, command markdown files, skill folders, app/MCP metadata, README-like docs if present.
+   - MCP: `[mcp_servers]` / `[mcp_servers.<name>]` entries in Codex config files and any referenced command help or package metadata.
    - CLI packages: console entry points, `--help` output, command dispatch source, package metadata, and docs.
 
 4. Extract the practical interface.
@@ -43,10 +45,12 @@ Use this skill to turn a locally installed Codex plugin, app bundle, skill, or r
    - Keep it practical: commands, examples, config paths, and troubleshooting over background explanation.
 
 7. Maintain `插件简介.md` when Codex extensions change.
-   - On any plugin, skill, or agent addition or removal, rebuild `插件简介.md` in the requested folder or current workspace.
-   - Enumerate the current installed state from `~/.codex/skills`, `~/.codex/plugins`, `~/.codex/plugins/cache`, `~/.codex/agents`, and `~/.agents/plugins` when they exist.
-   - Include one compact entry per current plugin, skill, or agent: type, name, local path, and one-sentence function summary.
+   - On any plugin, skill, agent, or MCP addition or removal, rebuild `插件简介.md` in the requested folder or current workspace.
+   - Enumerate the current installed state from `~/.codex/skills`, `~/.codex/plugins`, `~/.codex/plugins/cache`, `~/.codex/agents`, `~/.agents/plugins`, `~/.codex/config.toml`, `~/.codex/*.config.toml`, and project `.codex/config.toml` when they exist.
+   - Include one compact entry per current plugin, skill, agent, or MCP server: type, name, local path/config source, and one-sentence function summary.
    - Omit removed extensions instead of keeping stale entries.
+   - Prefer deterministic local generation with `scripts/codex-extension-docs.ps1 -Mode index` for `插件简介.md`; read manifests, skill frontmatter, agent config, plugin manifests, and MCP config before asking the model to summarize.
+   - Watcher-triggered updates should not call `codex exec`; reserve model-generated deep guides for explicit user requests.
 
 ## Windows Command Patterns
 

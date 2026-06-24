@@ -1,4 +1,4 @@
 interface:
   display_name: "Document Local Extensions"
-  short_description: "Document local Codex plugins, skills, and agents."
-  default_prompt: "Use $document-local-extensions to inspect local Codex plugins, skills, or agents, generate concise Markdown guides, and maintain 插件简介.md."
+  short_description: "Document local Codex plugins, skills, agents, and MCP servers."
+  default_prompt: "Use $document-local-extensions to inspect local Codex plugins, skills, agents, or MCP servers, generate concise Markdown guides, and maintain 插件简介.md. Prefer deterministic local generation for extension indexes; only use model-heavy summaries when explicitly requested."
