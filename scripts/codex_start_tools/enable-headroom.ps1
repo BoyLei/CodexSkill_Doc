@@ -21,6 +21,38 @@ $SnapshotPath = "$CodexDir\config.toml.snapshot-$(Get-Date -Format 'yyyyMMdd-HHm
 # 用于 TOML 校验；如果不存在，会跳过校验
 $Python = "$env:LOCALAPPDATA\Programs\Python\Python311\python.exe"
 
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$SyncScript = Join-Path $ScriptDir "sync_codex_thread_provider.py"
+$HeadroomStartScript = Join-Path $ScriptDir "start-headroom-and-wait.ps1"
+
+function Invoke-HeadroomStartWait {
+    if (-not (Test-Path -LiteralPath $HeadroomStartScript)) {
+        throw "未找到 HeadRoom 启动脚本: $HeadroomStartScript"
+    }
+
+    $result = & powershell -ExecutionPolicy Bypass -File $HeadroomStartScript -Port $PORT
+    if ($LASTEXITCODE -ne 0 -or (($result | Select-Object -Last 1).Trim()) -ne 'True') {
+        throw "Headroom 启动超时或失败"
+    }
+}
+
+function Invoke-CodexStartSync {
+    if (-not (Test-Path -LiteralPath $SyncScript)) {
+        throw "未找到同步脚本: $SyncScript"
+    }
+
+    if (Test-Path -LiteralPath $Python) {
+        & $Python $SyncScript --apply
+    }
+    else {
+        & python $SyncScript --apply
+    }
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "同步对话 provider 失败，退出码: $LASTEXITCODE"
+    }
+}
+
 function Write-Utf8NoBom {
     param(
         [string]$Path,
@@ -307,46 +339,14 @@ catch {
 
 Write-Host "检查 Headroom 是否已经运行..."
 
-$ready = Test-Port -Port $PORT
-
-if ($ready) {
-    Write-Host "检测到端口 $PORT 已在监听，跳过启动 Headroom。请确认该端口确实是 Headroom。" -ForegroundColor Yellow
-}
-else {
-    Write-Host "未检测到 Headroom，开始启动..."
-
-    try {
-        Start-Process headroom -ArgumentList "proxy --port $PORT" -WindowStyle Normal
-    }
-    catch {
-        Write-Host "启动 Headroom 失败: $($_.Exception.Message)" -ForegroundColor Red
-        Restore-Config
-        exit 1
-    }
-
-    $ready = $false
-
-    for ($i = 0; $i -lt 30; $i++) {
-       
-        # 注意：
-        # 这里故意只检测 TCP 端口，不访问 /v1/models。
-        # 因为 /v1/models 可能触发 Headroom / LiteLLM 输出 Provider List。
-        $ready = Test-Port -Port $PORT
-
-        if ($ready) {
-            break
-        }
-
-        Start-Sleep 1
-    }
-
-    if (-not $ready) {
-        Write-Host "Headroom 启动超时，端口 $PORT 未监听" -ForegroundColor Red
-        Restore-Config
-        exit 1
-    }
-
+try {
+    Invoke-HeadroomStartWait
     Write-Host "Headroom 已启动，端口已就绪: http://127.0.0.1:$PORT" -ForegroundColor Green
+}
+catch {
+    Write-Host "启动 Headroom 失败: $($_.Exception.Message)" -ForegroundColor Red
+    Restore-Config
+    exit 1
 }
 
 try {
@@ -361,8 +361,9 @@ catch {
 # -----------------------------
 
 try {
-    Start-Process "codex:"
-    Write-Host "已启动 Codex" -ForegroundColor Green
+    Invoke-CodexStartSync
+    # Start-Process "codex:"
+    Write-Host "已完成对话同步并启动 Codex" -ForegroundColor Green
 }
 catch {
     Write-Host "启动 Codex 失败: $($_.Exception.Message)" -ForegroundColor Red
