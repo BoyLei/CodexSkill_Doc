@@ -1,3 +1,8 @@
+param(
+    [switch]$DebugPy,
+    [int]$DebugPort = 5678
+)
+
 $ErrorActionPreference = 'Stop'
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -7,7 +12,14 @@ if (-not (Test-Path -LiteralPath $syncScript)) {
     throw "Sync script not found: $syncScript"
 }
 
-& python $syncScript --apply
+if ($DebugPy) {
+    Write-Host "DebugPy enabled, waiting for debugger on 127.0.0.1:$DebugPort ..." -ForegroundColor Yellow
+    & python -m debugpy --listen "127.0.0.1:$DebugPort" --wait-for-client $syncScript --apply
+}
+else {
+    & python $syncScript --apply
+}
+
 if ($LASTEXITCODE -ne 0) {
     throw "Provider sync failed with exit code $LASTEXITCODE"
 }

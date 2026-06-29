@@ -12,8 +12,6 @@ try:
 except ModuleNotFoundError:  # pragma: no cover
     tomllib = None
 
-TARGET_PROVIDERS = ("headroom", "custom")
-
 
 def load_provider(config_path: Path) -> str:
     if tomllib is None:
@@ -26,27 +24,29 @@ def load_provider(config_path: Path) -> str:
     return "openai"
 
 
-def count_target_threads(conn: sqlite3.Connection) -> int:
+def count_target_threads(conn: sqlite3.Connection, provider: str) -> int:
     row = conn.execute(
         """
         SELECT COUNT(*)
         FROM threads
         WHERE archived = 0
-          AND model_provider IN ('headroom', 'custom')
-        """
+          AND COALESCE(model_provider, '') <> ?
+        """,
+        (provider,),
     ).fetchone()
     return int(row[0])
 
 
-def list_target_thread_ids(conn: sqlite3.Connection) -> list[str]:
+def list_target_thread_ids(conn: sqlite3.Connection, provider: str) -> list[str]:
     rows = conn.execute(
         """
         SELECT id
         FROM threads
         WHERE archived = 0
-          AND model_provider IN ('headroom', 'custom')
+          AND COALESCE(model_provider, '') <> ?
         ORDER BY updated_at DESC, id DESC
-        """
+        """,
+        (provider,),
     ).fetchall()
     return [str(thread_id) for (thread_id,) in rows]
 
@@ -80,9 +80,9 @@ def sync_provider(db_path: Path, provider: str) -> int:
             UPDATE threads
             SET model_provider = ?
             WHERE archived = 0
-              AND model_provider IN ('headroom', 'custom')
+              AND COALESCE(model_provider, '') <> ?
             """,
-            (provider,),
+            (provider, provider),
         )
         conn.commit()
         return int(cur.rowcount)
@@ -117,18 +117,16 @@ def sync_session_file(path: Path, provider: str) -> bool:
                 new_lines.append(line)
                 continue
             obj = json.loads(line)
-            if (
-                obj.get("type") == "session_meta"
-                and isinstance(obj.get("payload"), dict)
-                and obj["payload"].get("model_provider") in TARGET_PROVIDERS
-            ):
-                obj["payload"]["model_provider"] = provider
-                changed = True
-                newline = "\r\n" if line.endswith("\r\n") else "\n"
-                new_lines.append(
-                    json.dumps(obj, ensure_ascii=False, separators=(",", ":")) + newline
-                )
-                continue
+            if obj.get("type") == "session_meta" and isinstance(obj.get("payload"), dict):
+                current = obj["payload"].get("model_provider")
+                if current != provider:
+                    obj["payload"]["model_provider"] = provider
+                    changed = True
+                    newline = "\r\n" if line.endswith("\r\n") else "\n"
+                    new_lines.append(
+                        json.dumps(obj, ensure_ascii=False, separators=(",", ":")) + newline
+                    )
+                    continue
             new_lines.append(line)
     if changed:
         with path.open("w", encoding="utf-8", newline="") as fh:
@@ -153,7 +151,7 @@ def sync_session_files(
 def parse_args() -> argparse.Namespace:
     home = Path.home() / ".codex"
     parser = argparse.ArgumentParser(
-        description="Sync unarchived HeadRoom and custom Codex thread providers to the current config provider."
+        description="Sync unarchived Codex thread providers to the current config provider."
     )
     parser.add_argument("--codex-home", type=Path, default=home)
     parser.add_argument(
@@ -175,9 +173,9 @@ def self_test() -> int:
         session_dir.mkdir(parents=True)
         session_a = session_dir / "rollout-2026-06-29T10-41-36-a.jsonl"
         session_b = session_dir / "rollout-2026-06-29T10-41-36-b.jsonl"
-        config_path.write_bytes(b'model_provider = "openai"\n')
+        config_path.write_bytes(b'model_provider = "headroom"\n')
         session_a.write_text(
-            '{"type":"session_meta","payload":{"id":"a","model_provider":"headroom"}}\r\n',
+            '{"type":"session_meta","payload":{"id":"a","model_provider":"openai"}}\r\n',
             encoding="utf-8",
             newline="",
         )
@@ -200,18 +198,18 @@ def self_test() -> int:
         conn.executemany(
             "INSERT INTO threads (id, archived, model_provider, updated_at) VALUES (?, ?, ?, ?)",
             [
-                ("a", 0, "headroom", 3),
+                ("a", 0, "openai", 3),
                 ("b", 0, "custom", 2),
-                ("c", 0, "openai", 1),
-                ("d", 1, "custom", 0),
+                ("c", 0, "headroom", 1),
+                ("d", 1, "openai", 0),
             ],
         )
         conn.commit()
-        thread_ids = list_target_thread_ids(conn)
+        thread_ids = list_target_thread_ids(conn, "headroom")
         conn.close()
 
         provider = load_provider(config_path)
-        assert provider == "openai"
+        assert provider == "headroom"
         changed = sync_provider(db_path, provider)
         assert changed == 2
         session_changed, session_files, backups = sync_session_files(
@@ -227,17 +225,17 @@ def self_test() -> int:
         ).fetchall()
         conn.close()
         assert rows == [
-            ("a", 0, "openai"),
-            ("b", 0, "openai"),
-            ("c", 0, "openai"),
-            ("d", 1, "custom"),
+            ("a", 0, "headroom"),
+            ("b", 0, "headroom"),
+            ("c", 0, "headroom"),
+            ("d", 1, "openai"),
         ]
         with session_a.open("r", encoding="utf-8") as fh:
             payload_a = json.loads(fh.readline())
         with session_b.open("r", encoding="utf-8") as fh:
             payload_b = json.loads(fh.readline())
-        assert payload_a["payload"]["model_provider"] == "openai"
-        assert payload_b["payload"]["model_provider"] == "openai"
+        assert payload_a["payload"]["model_provider"] == "headroom"
+        assert payload_b["payload"]["model_provider"] == "headroom"
     print("self-test: ok")
     return 0
 
@@ -265,14 +263,15 @@ def main() -> int:
     provider = load_provider(config_path)
     conn = sqlite3.connect(db_path)
     try:
-        before = count_target_threads(conn)
+        before = count_target_threads(conn, provider)
         breakdown = provider_breakdown(conn)
-        thread_ids = list_target_thread_ids(conn)
+        thread_ids = list_target_thread_ids(conn, provider)
     finally:
         conn.close()
 
     session_files = iter_session_files(sessions_root, set(thread_ids))
 
+    print(f"config path: {config_path}")
     print(f"current provider: {provider}")
     print("unarchived providers before:")
     for item_provider, count in breakdown:

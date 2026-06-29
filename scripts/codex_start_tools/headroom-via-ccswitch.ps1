@@ -20,7 +20,7 @@ $BackupPath = "$CodexDir\config.toml.headroom-via-ccswitch-bak"
 $Python = "$env:LOCALAPPDATA\Programs\Python\Python311\python.exe"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$SyncScript = Join-Path $ScriptDir "sync_codex_thread_provider.py"
+$SyncScript = Join-Path $ScriptDir "start_codex_with_provider_sync.ps1"
 $HeadroomStartScript = Join-Path $ScriptDir "start-headroom-and-wait.ps1"
 
 function Invoke-HeadroomStartWait {
@@ -39,12 +39,7 @@ function Invoke-CodexStartSync {
     throw "未找到同步脚本: $SyncScript"
   }
 
-  if (Test-Path -LiteralPath $Python) {
-    & $Python $SyncScript --apply
-  }
-  else {
-    & python $SyncScript --apply
-  }
+  & powershell -ExecutionPolicy Bypass -File $SyncScript
 
   if ($LASTEXITCODE -ne 0) {
     throw "同步对话 provider 失败，退出码: $LASTEXITCODE"

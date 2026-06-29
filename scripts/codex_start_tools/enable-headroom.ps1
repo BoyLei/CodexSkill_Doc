@@ -22,7 +22,7 @@ $SnapshotPath = "$CodexDir\config.toml.snapshot-$(Get-Date -Format 'yyyyMMdd-HHm
 $Python = "$env:LOCALAPPDATA\Programs\Python\Python311\python.exe"
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$SyncScript = Join-Path $ScriptDir "sync_codex_thread_provider.py"
+$SyncScript = Join-Path $ScriptDir "start_codex_with_provider_sync.ps1"
 $HeadroomStartScript = Join-Path $ScriptDir "start-headroom-and-wait.ps1"
 
 function Invoke-HeadroomStartWait {
@@ -41,11 +41,11 @@ function Invoke-CodexStartSync {
         throw "未找到同步脚本: $SyncScript"
     }
 
-    if (Test-Path -LiteralPath $Python) {
-        & $Python $SyncScript --apply
+    if ($env:SYNC_DEBUGPY -eq '1') {
+        & powershell -ExecutionPolicy Bypass -File $SyncScript -DebugPy -DebugPort 5678
     }
     else {
-        & python $SyncScript --apply
+        & powershell -ExecutionPolicy Bypass -File $SyncScript
     }
 
     if ($LASTEXITCODE -ne 0) {
