@@ -1,24 +1,24 @@
 ---
-name: ponytail
-description: Lazy senior dev mode. Forces the simplest, shortest solution that actually works: YAGNI, stdlib first, no unrequested abstractions.
+name: slack
+description: Work with Slack using the configured Slack integration.
 ---
 
-# Ponytail 插件 操作指南
+# Slack 插件 操作指南
 
 ## 本地安装位置
 
 - Type: `plugin`
-- Path: `C:\Users\dl\.codex\plugins\cache\ponytail\ponytail\4.8.4`
-- Version: 4.8.4
+- Path: `C:\Users\dl\.codex\plugins\cache\openai-curated-remote\slack\0.1.2`
+- Version: 0.1.2
 
 ## 功能概览
 
-- Lazy senior dev mode. Forces the simplest, shortest solution that actually works: YAGNI, stdlib first, no unrequested abstractions.
+- Work with Slack using the configured Slack integration.
 
 ## 常用只读检查
 
 ```powershell
-Test-Path -LiteralPath 'C:\Users\dl\.codex\plugins\cache\ponytail\ponytail\4.8.4'
+Test-Path -LiteralPath 'C:\Users\dl\.codex\plugins\cache\openai-curated-remote\slack\0.1.2'
 ```
 
 ## 会修改本机状态的操作
@@ -28,7 +28,7 @@ Test-Path -LiteralPath 'C:\Users\dl\.codex\plugins\cache\ponytail\ponytail\4.8.4
 
 ## 读取的数据和配置
 
-- `C:\Users\dl\.codex\plugins\cache\ponytail\ponytail\4.8.4`
+- `C:\Users\dl\.codex\plugins\cache\openai-curated-remote\slack\0.1.2`
 
 ## 给 Codex 的使用提示
 

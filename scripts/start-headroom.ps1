@@ -1,6 +1,4 @@
-import pathlib
-
-PS1 = r"""# ============================================
+# ============================================
 # headRoom + Codex 启动/恢复脚本
 # 方案一：正常 Codex 启动（不依赖其他外部模型）
 # ============================================
@@ -119,9 +117,3 @@ do {
         default { Write-Host "无效选择，请输入 0、1 或 2" }
     }
 } while ($choice -match "^[012]" -and $choice -ne "0")
-"""
-
-out = pathlib.Path(r'D:\360MoveData\Users\dl\Documents\操作手册\scripts\start-headroom.ps1')
-out.write_text(PS1.lstrip(), encoding='utf-8')
-print(f'Saved: {out} ({len(PS1)} chars)')
-

@@ -1,24 +1,24 @@
 ---
-name: ponytail
-description: Lazy senior dev mode. Forces the simplest, shortest solution that actually works: YAGNI, stdlib first, no unrequested abstractions.
+name: computer-use
+description: Control desktop apps on Windows from Codex through Computer Use.
 ---
 
-# Ponytail 插件 操作指南
+# Computer-Use 插件 操作指南
 
 ## 本地安装位置
 
 - Type: `plugin`
-- Path: `C:\Users\dl\.codex\plugins\cache\ponytail\ponytail\4.8.4`
-- Version: 4.8.4
+- Path: `C:\Users\dl\.codex\plugins\cache\openai-bundled\computer-use\26.616.81150`
+- Version: 26.616.81150
 
 ## 功能概览
 
-- Lazy senior dev mode. Forces the simplest, shortest solution that actually works: YAGNI, stdlib first, no unrequested abstractions.
+- Control desktop apps on Windows from Codex through Computer Use.
 
 ## 常用只读检查
 
 ```powershell
-Test-Path -LiteralPath 'C:\Users\dl\.codex\plugins\cache\ponytail\ponytail\4.8.4'
+Test-Path -LiteralPath 'C:\Users\dl\.codex\plugins\cache\openai-bundled\computer-use\26.616.81150'
 ```
 
 ## 会修改本机状态的操作
@@ -28,7 +28,7 @@ Test-Path -LiteralPath 'C:\Users\dl\.codex\plugins\cache\ponytail\ponytail\4.8.4
 
 ## 读取的数据和配置
 
-- `C:\Users\dl\.codex\plugins\cache\ponytail\ponytail\4.8.4`
+- `C:\Users\dl\.codex\plugins\cache\openai-bundled\computer-use\26.616.81150`
 
 ## 给 Codex 的使用提示
 

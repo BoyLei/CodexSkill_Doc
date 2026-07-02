@@ -1,0 +1,17 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^\\$env:PYTHONIOENCODING='utf-8'; \\$env:PYTHONUTF8='1'; tt codex --help$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^\\$ErrorActionPreference='SilentlyContinue'; \\$roots=@\\(\"\\$env:LOCALAPPDATA\\\\Programs\\\\Microsoft VS Code\\\\resources\\\\app\\\\extensions\",\"h:\\\\Cache\\\\Users\\\\dl\\\\AppData\\\\Local\\\\Programs\\\\Microsoft VS Code\\\\7e7950df89\\\\resources\\\\app\\\\extensions\"\\); foreach\\(\\$r in \\$roots\\)\\{ if\\(Test-Path \\$r\\)\\{ Write-Host \"=== ROOT: \\$r ===\"; Get-ChildItem \\$r -Directory \\| Where-Object \\{ \\$_\\.Name -match 'copilot\\|chat\\|ai\\|github' \\} \\| Select-Object -ExpandProperty FullName \\} \\}$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^\\$ErrorActionPreference='SilentlyContinue'; \\$root='h:\\\\Cache\\\\Users\\\\dl\\\\AppData\\\\Local\\\\Programs\\\\Microsoft VS Code\\\\7e7950df89\\\\resources\\\\app\\\\extensions\\\\copilot'; if\\(Test-Path \\$root\\)\\{ rg -n -i \"codex\\|chat\\|filter\\|participant\\|provider\\|session\" \"\\$root\" \\}$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    },
+    "chat.mcp.serverSampling": {}
+}

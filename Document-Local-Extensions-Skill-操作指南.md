@@ -1,6 +1,6 @@
 ---
 name: document-local-extensions
-description: Inspect local Codex plugins, installed skills, agents, MCP/app bundles, CLI entry points, command docs, manifests, and local extension folders, then generate a concise Markdown operation guide and maintain 插件简介.md. Use when the user asks to查找/阅读/整理本地插件、skill、agent、MCP的功能、终端命令、使用方法、配置影响、排查步骤, or wants reusable操作说明md for local Codex extensions.
+description: Use when the user explicitly asks to generate, write, update, or maintain a Markdown operation guide or 插件简介.md for local Codex plugins, skills, agents, MCP servers, app bundles, or CLI extensions. Do not use for one-off path lookups, feature questions, reading, troubleshooting, or general extension inspection without a documentation deliverable.
 ---
 
 # Document-Local-Extensions Skill 操作指南
@@ -13,7 +13,7 @@ description: Inspect local Codex plugins, installed skills, agents, MCP/app bund
 
 ## 功能概览
 
-- Inspect local Codex plugins, installed skills, agents, MCP/app bundles, CLI entry points, command docs, manifests, and local extension folders, then generate a concise Markdown operation guide and maintain 插件简介.md. Use when the user asks to查找/阅读/整理本地插件、skill、agent、MCP的功能、终端命令、使用方法、配置影响、排查步骤, or wants reusable操作说明md for local Codex extensions.
+- Use when the user explicitly asks to generate, write, update, or maintain a Markdown operation guide or 插件简介.md for local Codex plugins, skills, agents, MCP servers, app bundles, or CLI extensions. Do not use for one-off path lookups, feature questions, reading, troubleshooting, or general extension inspection without a documentation deliverable.
 
 ## 常用只读检查
 

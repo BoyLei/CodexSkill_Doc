@@ -1,24 +1,24 @@
 ---
-name: config
-description: Codex MCP 配置文件。
+name: figma
+description: Figma workflows for design implementation, Code Connect templates, and design system rule generation.
 ---
 
-# Config MCP 操作指南
+# Figma 插件 操作指南
 
 ## 本地安装位置
 
-- Type: `mcp`
-- Path: `C:\Users\dl\.codex\config.toml`
-- Version: not declared
+- Type: `plugin`
+- Path: `C:\Users\dl\.codex\plugins\cache\openai-curated-remote\figma\2.0.12`
+- Version: 2.0.12
 
 ## 功能概览
 
-- Codex MCP 配置文件。
+- Figma workflows for design implementation, Code Connect templates, and design system rule generation.
 
 ## 常用只读检查
 
 ```powershell
-Test-Path -LiteralPath 'C:\Users\dl\.codex\config.toml'
+Test-Path -LiteralPath 'C:\Users\dl\.codex\plugins\cache\openai-curated-remote\figma\2.0.12'
 ```
 
 ## 会修改本机状态的操作
@@ -28,7 +28,7 @@ Test-Path -LiteralPath 'C:\Users\dl\.codex\config.toml'
 
 ## 读取的数据和配置
 
-- `C:\Users\dl\.codex\config.toml`
+- `C:\Users\dl\.codex\plugins\cache\openai-curated-remote\figma\2.0.12`
 
 ## 给 Codex 的使用提示
 

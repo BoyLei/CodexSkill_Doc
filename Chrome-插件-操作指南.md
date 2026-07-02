@@ -9,7 +9,7 @@ description: Chrome automation for tasks that depend on the user's existing Chro
 
 - Type: `plugin`
 - Path: `C:\Users\dl\.codex\plugins\cache\openai-bundled\chrome\latest`
-- Version: 26.616.51431
+- Version: 26.616.81150
 
 ## 功能概览
 
